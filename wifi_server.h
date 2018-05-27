@@ -3,9 +3,9 @@
 
 #include <arpa/inet.h>
 
-
 int WIFI_init( void );
-int WIFI_accept( int new_socket, int socket_desc , int c, struct sockaddr_in client );
+int WIFI_accept( void );
+void WIFI_connect( void );
 void *connection_handler( int *socket_desc );
 
 

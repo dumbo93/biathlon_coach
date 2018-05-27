@@ -34,11 +34,11 @@ int main( int argc, char **argv[])
 	computer_state_set(WAIT_FOR_DATA);
 
 
-	while(1)
+	while( ( WIFI_accept() ) )
 	{
 		switch( computer_state_get() ){
 			case WAIT_FOR_DATA:
-
+				WIFI_connect();
 				//computer_state_set(NEW_DATA);
 				break;
 
@@ -52,8 +52,11 @@ int main( int argc, char **argv[])
 				break;
 		}
 	}
-
-
+	
+	//if (new_socket<0)
+    //{
+    //    printf("accept failed");
+    //}
 
 	return 0;
 }

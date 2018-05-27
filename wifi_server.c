@@ -18,14 +18,10 @@
 int socket_desc, new_socket, c, *new_sock;
 char *message;
 struct sockaddr_in server, client; 
-c = sizeof(struct sockaddr_in);
-
-
 
 int WIFI_init( void )
 {
     printf("hello from wifi_init\n");
-    int accepted = 0;
 
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     
@@ -52,47 +48,39 @@ int WIFI_init( void )
     printf("wifi: started listening \n");
 
     printf("Waiting for incoming connections...\n");
-    
-    accepted = WIFI_accept( new_socket, socket_desc, c, client );
+
 
     return 0;
 }
 
 
 
-int WIFI_accept( int new_socket, int socket_desc, int c, struct sockaddr_in client )
+int WIFI_accept( )
 {
-    
-
-    while( (new_socket = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) )
-    {
-        printf("Connection accepted\n");
-         
-        //Reply to the client
-        //message = "Hello Client , I have received your connection. And now I will assign a handler for you\n";
-        //write(new_socket , message , strlen(message));
-         
-        pthread_t sniffer_thread;
-        new_sock = malloc(1);
-        *new_sock = new_socket;
-         
-        if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0)
-        {
-            perror("could not create thread");
-            return 1;
-        }
-         
-        //Now join the thread , so that we dont terminate before the thread
-        //pthread_join( sniffer_thread , NULL);
-        printf("Handler assigned\n");
-    }
-    if (new_socket<0)
-    {
-        printf("accept failed");
-    }
-    return 0;
+    if ((new_socket = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)))
+        return 1;
+    else
+        return 0;
 }
 
+void WIFI_connect()
+{
+    printf("Connection accepted\n");
+    c = sizeof(struct sockaddr_in);
+     
+    pthread_t sniffer_thread;
+    new_sock = malloc(1);
+    *new_sock = new_socket;
+     
+    if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0)
+    {
+        perror("could not create thread\n");
+    }
+     
+    //Now join the thread , so that we dont terminate before the thread
+    //pthread_join( sniffer_thread , NULL);
+    printf("Handler assigned\n");
+}
 
 
 void *connection_handler( int *socket_desc )
