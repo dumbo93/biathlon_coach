@@ -13,34 +13,29 @@
 #include <pthread.h>
 
 #include "wifi_server.h"
+#include "computer_state.h"
+
+int socket_desc, new_socket, c, *new_sock;
+char *message;
+struct sockaddr_in server, client; 
+c = sizeof(struct sockaddr_in);
+
+
 
 int WIFI_init( void )
 {
     printf("hello from wifi_init\n");
-    int socket_desc, new_socket, c;
     int accepted = 0;
-    struct sockaddr_in server, client; 
-    socket_desc = WIFI_create_socket( socket_desc );
-    WIFI_bin_socket( socket_desc, server );
-    WIFI_listen( socket_desc );
-    accepted = WIFI_accept( new_socket, socket_desc, c, client );
 
-    return socket_desc;
-}
-
-int WIFI_create_socket( int socket_desc )
-{
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     
     if (socket_desc == -1)
     {
         printf("Could not create socket");
+        return 1;
     }
-    return socket_desc;
-}
 
-void WIFI_bin_socket( int socket_desc, struct sockaddr_in server )
-{
+
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
     server.sin_port = htons( 8888 );
@@ -48,22 +43,27 @@ void WIFI_bin_socket( int socket_desc, struct sockaddr_in server )
     if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
     {
         printf("bind failed\n");
+        return 1;
     }
     printf("bind done\n");
+
+
+    listen(socket_desc , 1);
+    printf("wifi: started listening \n");
+
+    printf("Waiting for incoming connections...\n");
+    
+    accepted = WIFI_accept( new_socket, socket_desc, c, client );
+
+    return 0;
 }
 
 
-void WIFI_listen( int socket_desc )
-{
-    listen(socket_desc , 3);
-}
 
 int WIFI_accept( int new_socket, int socket_desc, int c, struct sockaddr_in client )
 {
-    printf("Waiting for incoming connections...");
-    char *message;
-    int *new_sock;
-    c = sizeof(struct sockaddr_in);
+    
+
     while( (new_socket = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) )
     {
         printf("Connection accepted\n");
@@ -86,7 +86,6 @@ int WIFI_accept( int new_socket, int socket_desc, int c, struct sockaddr_in clie
         //pthread_join( sniffer_thread , NULL);
         printf("Handler assigned\n");
     }
-     
     if (new_socket<0)
     {
         printf("accept failed");
@@ -95,31 +94,17 @@ int WIFI_accept( int new_socket, int socket_desc, int c, struct sockaddr_in clie
 }
 
 
-void WIFI_write( int new_socket, char *message )
-{
-    message = "Hello Client , I have received your connection. But I have to go now, bye\n";
-    write(new_socket, message, strlen(message));
-}
 
 void *connection_handler( int *socket_desc )
 {
     int sock = *(int*)socket_desc;
     int read_size;
 
-    char *message, client_message[2000];
-
-
-    //message = "Gratings!\n";
-    //write(sock, message, strlen(message));
-
-    //message = "Its my duty to communicate with you";
-    //write(sock, message, strlen(message));
-
     //Receive a message from client
-    while( (read_size = recv(sock , &client_message , 2000 , 0)) > 0 )
+    while( (read_size = recv(sock , &current_value , 2000 , 0)) > 0 )
     {
         //Send the message back to client
-        printf("from connection handle %s \n", &client_message );
+        printf("from connection handle %s \n", &current_value );
         //write(sock , client_message , strlen(client_message));
     }
      
@@ -139,4 +124,3 @@ void *connection_handler( int *socket_desc )
 
     return 0;
 }
-
