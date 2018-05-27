@@ -1,3 +1,4 @@
+
 // https://www.binarytides.com/socket-programming-c-linux-tutorial/
 // Open a socket
 // Bind to a address(and port).
@@ -15,21 +16,21 @@
 
 int WIFI_init( void )
 {
-	printf("hello from wifi_init\n");
-	int socket_desc, new_socket, c;
-	int accepted = 0;
-	struct sockaddr_in server, client; 
-	socket_desc = WIFI_create_socket( socket_desc );
-	WIFI_bin_socket( socket_desc, server );
-	WIFI_listen( socket_desc );
-	accepted = WIFI_accept( new_socket, socket_desc, c, client );
+    printf("hello from wifi_init\n");
+    int socket_desc, new_socket, c;
+    int accepted = 0;
+    struct sockaddr_in server, client; 
+    socket_desc = WIFI_create_socket( socket_desc );
+    WIFI_bin_socket( socket_desc, server );
+    WIFI_listen( socket_desc );
+    accepted = WIFI_accept( new_socket, socket_desc, c, client );
 
-	return accepted;
+    return socket_desc;
 }
 
 int WIFI_create_socket( int socket_desc )
 {
-	socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     
     if (socket_desc == -1)
     {
@@ -40,36 +41,36 @@ int WIFI_create_socket( int socket_desc )
 
 void WIFI_bin_socket( int socket_desc, struct sockaddr_in server )
 {
-	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons( 8888 );
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons( 8888 );
 
-	if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
-	{
-    	printf("bind failed\n");
-	}
-	printf("bind done\n");
+    if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
+    {
+        printf("bind failed\n");
+    }
+    printf("bind done\n");
 }
 
 
 void WIFI_listen( int socket_desc )
 {
-	listen(socket_desc , 3);
+    listen(socket_desc , 3);
 }
 
 int WIFI_accept( int new_socket, int socket_desc, int c, struct sockaddr_in client )
 {
-	printf("Waiting for incoming connections...");
-	char *message;
-	int *new_sock;
-	c = sizeof(struct sockaddr_in);
-	while( (new_socket = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) )
+    printf("Waiting for incoming connections...");
+    char *message;
+    int *new_sock;
+    c = sizeof(struct sockaddr_in);
+    while( (new_socket = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) )
     {
         printf("Connection accepted\n");
          
         //Reply to the client
-        message = "Hello Client , I have received your connection. And now I will assign a handler for you\n";
-        write(new_socket , message , strlen(message));
+        //message = "Hello Client , I have received your connection. And now I will assign a handler for you\n";
+        //write(new_socket , message , strlen(message));
          
         pthread_t sniffer_thread;
         new_sock = malloc(1);
@@ -96,29 +97,30 @@ int WIFI_accept( int new_socket, int socket_desc, int c, struct sockaddr_in clie
 
 void WIFI_write( int new_socket, char *message )
 {
-	message = "Hello Client , I have received your connection. But I have to go now, bye\n";
-	write(new_socket, message, strlen(message));
+    message = "Hello Client , I have received your connection. But I have to go now, bye\n";
+    write(new_socket, message, strlen(message));
 }
 
-void *connection_handler( void *socket_desc )
+void *connection_handler( int *socket_desc )
 {
-	int sock = *(int*)socket_desc;
-	int read_size;
+    int sock = *(int*)socket_desc;
+    int read_size;
 
-	char *message, client_message[2000];
+    char *message, client_message[2000];
 
 
-	message = "Gratings!\n";
-	write(sock, message, strlen(message));
+    //message = "Gratings!\n";
+    //write(sock, message, strlen(message));
 
-	message = "Its my duty to communicate with you";
-	write(sock, message, strlen(message));
+    //message = "Its my duty to communicate with you";
+    //write(sock, message, strlen(message));
 
-	//Receive a message from client
-    while( (read_size = recv(sock , client_message , 2000 , 0)) > 0 )
+    //Receive a message from client
+    while( (read_size = recv(sock , &client_message , 2000 , 0)) > 0 )
     {
         //Send the message back to client
-        write(sock , client_message , strlen(client_message));
+        printf("from connection handle %s \n", &client_message );
+        //write(sock , client_message , strlen(client_message));
     }
      
     if(read_size == 0)
@@ -133,7 +135,8 @@ void *connection_handler( void *socket_desc )
          
     //Free the socket pointer
 
-	free(socket_desc);
+    free(socket_desc);
 
-	return 0;
+    return 0;
 }
+

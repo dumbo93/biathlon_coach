@@ -9,7 +9,7 @@
 
 int main( int argc, char **argv[])
 {
-	/*
+	
 	time_t current_time;
 
 	current_time = time(NULL);
@@ -21,10 +21,9 @@ int main( int argc, char **argv[])
 		return 0;
 	}
 
-	//int socket_desc = 0;
-
-	SAVE_DATA_init(stime); */
 	int socket_desc = 0;
+
+	SAVE_DATA_init(stime); 
 	socket_desc = WIFI_init();
 
 	printf("Hello from main on pc\n");
@@ -32,15 +31,28 @@ int main( int argc, char **argv[])
 
 	printf("Socket_desc = %d\n", socket_desc);
 
-	if (socket_desc)
-	{
-		printf("Connected");
-	}
+	computer_state_set(WAIT_FOR_DATA);
+
 
 	while(1)
 	{
+		switch( computer_state_get() ){
+			case WAIT_FOR_DATA:
 
+				//computer_state_set(NEW_DATA);
+				break;
+
+			case NEW_DATA:
+				SAVE_DATA_add_val( );
+				computer_state_set(WAIT_FOR_DATA);
+				break;
+
+			default:
+				computer_state_set(WAIT_FOR_DATA);
+				break;
+		}
 	}
+
 
 
 	return 0;

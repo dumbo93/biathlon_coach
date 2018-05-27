@@ -50,12 +50,10 @@ void file_name_set( int time_value )
 void SAVE_DATA_add_val( void )
 {
 	fp = fopen(logfile_name, "a");
-	//fputs(sensor.name);
-	fprintf(fp, "--");
-	fprintf(fp, "%s", current_value);
-	//fputs(sensor.time);
-	fprintf(fp, "\n\n");
 
+	fprintf(fp, "%s", &current_value);
+
+	fprintf(fp, "\n");
 
 	fclose(fp);
 
