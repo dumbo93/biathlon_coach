@@ -3,7 +3,7 @@
 
 typedef enum{ WAIT_FOR_DATA, NEW_DATA}state_t;
 
-char current_value[2000];
+char current_value;
 
 void computer_state_set(state_t next_state);
 

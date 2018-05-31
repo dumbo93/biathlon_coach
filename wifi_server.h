@@ -5,7 +5,8 @@
 
 int WIFI_init( void );
 int WIFI_accept( void );
-void WIFI_connect( void );
+int WIFI_receive( void );
+int WIFI_connect( void );
 void *connection_handler( int *socket_desc );
 
 

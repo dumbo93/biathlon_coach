@@ -45,7 +45,6 @@ int WIFI_init( void )
 
 
     listen(socket_desc , 1);
-    printf("wifi: started listening \n");
 
     printf("Waiting for incoming connections...\n");
 
@@ -63,7 +62,7 @@ int WIFI_accept( )
         return 0;
 }
 
-void WIFI_connect()
+int WIFI_connect()
 {
     printf("Connection accepted\n");
     c = sizeof(struct sockaddr_in);
@@ -75,11 +74,39 @@ void WIFI_connect()
     if( pthread_create( &sniffer_thread , NULL ,  connection_handler , (void*) new_sock) < 0)
     {
         perror("could not create thread\n");
+        return 0;
     }
      
     //Now join the thread , so that we dont terminate before the thread
     //pthread_join( sniffer_thread , NULL);
     printf("Handler assigned\n");
+    return 1;
+}
+
+int WIFI_receive()
+{
+    //int sock = *(int*)socket_desc;
+    int read_size;
+    //new_sock = malloc(1);
+    //*new_sock = new_socket;
+     
+    printf("Hello from wifi receive\n");
+
+    read_size = recv(new_socket, &current_value, 2000, 0);
+
+    if(read_size == 0)
+    {
+        printf("Client disconnected\n\n");
+        close(new_socket);
+    }
+    else if(read_size == -1)
+    {
+        printf("recv failed\n");
+        close(new_socket);
+    }
+    
+    return read_size;
+
 }
 
 
@@ -93,6 +120,7 @@ void *connection_handler( int *socket_desc )
     {
         //Send the message back to client
         printf("from connection handle %s \n", &current_value );
+        computer_state_set(NEW_DATA);
         //write(sock , client_message , strlen(client_message));
     }
      

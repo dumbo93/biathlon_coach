@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #include "save_data.h"
 #include "computer_state.h"
@@ -49,6 +50,7 @@ void file_name_set( int time_value )
 
 void SAVE_DATA_add_val( void )
 {
+	printf("save_data: %s\n", &current_value);
 	fp = fopen(logfile_name, "a");
 
 	fprintf(fp, "%s", &current_value);
@@ -57,4 +59,14 @@ void SAVE_DATA_add_val( void )
 
 	fclose(fp);
 
+}
+
+void SAVE_DATA_info_discon( void )
+{
+	fp = fopen(logfile_name, "a");
+
+	fprintf(fp, "-- Disconnected --\n\n");
+
+
+	fclose(fp);
 }
