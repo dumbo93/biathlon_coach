@@ -26,9 +26,8 @@ void SAVE_DATA_init(struct tm stime)
 
 	fp = fopen(logfile_name, "w");
 
-	fprintf(fp, "sensor_name");
-	fprintf(fp, "--");
-	fprintf(fp, "sensor_time");
+	fprintf(fp, "Logging of sensor data on PC started at: ");
+	fprintf(fp, "%d:%d", stime.tm_hour, stime.tm_min);
 	fprintf(fp, "\n\n");
 
 	fclose(fp);
